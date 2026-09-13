@@ -55,6 +55,12 @@
     <text x="635" y="97" text-anchor="middle" font-family="'Public Sans',Inter,'Segoe UI',Helvetica,Arial,sans-serif" font-size="16" font-weight="800" letter-spacing="1" fill="#1f4f8a">100% FREE</text>
   </g>
 
+  <!-- Course-length ribbon -->
+  <g>
+    <rect x="546" y="122" width="164" height="36" rx="18" fill="#ffffff" fill-opacity="0.14" stroke="#ffffff" stroke-opacity="0.4"/>
+    <text x="628" y="146" text-anchor="middle" font-family="'Public Sans',Inter,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="0.5" fill="#ffffff">~5 HOURS OF CONTENT</text>
+  </g>
+
   <!-- TS mark -->
   <g>
     <rect x="130" y="150" width="140" height="140" rx="24" fill="url(#badge)"/>
