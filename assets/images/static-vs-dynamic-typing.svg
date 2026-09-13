@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="svsd-title svsd-desc">
+  <title id="svsd-title">Statically typed vs. dynamically typed languages</title>
+  <desc id="svsd-desc">Comparison diagram: statically typed languages like C++, C#, and Java catch a type mismatch at compile time, while dynamically typed languages like JavaScript, Python, and Ruby only discover it when the code runs.</desc>
+
+  <defs>
+    <style>
+      .heading { font-family: 'Public Sans', Inter, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 800; }
+      .sub { font-family: 'Public Sans', Inter, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 18px; fill: #51607a; }
+      .code { font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace; font-size: 20px; }
+      .caption { font-family: 'Public Sans', Inter, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 17px; fill: #51607a; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="620" rx="16" fill="#f5f7fb"/>
+  <rect x="0.5" y="0.5" width="1199" height="619" rx="16" fill="none" stroke="#dbe1ee"/>
+
+  <!-- Left panel: statically typed -->
+  <g>
+    <rect x="40" y="40" width="540" height="460" rx="14" fill="#ffffff" stroke="#dbe1ee"/>
+    <rect x="72" y="72" width="240" height="40" rx="20" fill="#1f4f8a"/>
+    <text x="192" y="98" text-anchor="middle" class="heading" fill="#ffffff" font-size="18">STATICALLY TYPED</text>
+    <text x="72" y="138" class="sub">C++ &middot; C# &middot; Java</text>
+
+    <rect x="72" y="168" width="476" height="150" rx="10" fill="#10192c"/>
+    <text x="96" y="212" class="code" fill="#a9b6d0">let count<tspan fill="#6ea8f0">: number</tspan> = 10;</text>
+    <text x="96" y="252" class="code" fill="#f0917c">count = "a";</text>
+    <text x="96" y="284" class="code" fill="#5fcf9f" font-size="16">// ✕ compiler error — caught before it ever runs</text>
+
+    <text x="72" y="360" class="caption">The type of <tspan class="code" font-size="17">count</tspan> is fixed the moment</text>
+    <text x="72" y="386" class="caption">it's declared. Assigning a string to it is not a</text>
+    <text x="72" y="412" class="caption">runtime surprise — it's a compile-time error.</text>
+  </g>
+
+  <!-- Right panel: dynamically typed -->
+  <g>
+    <rect x="620" y="40" width="540" height="460" rx="14" fill="#ffffff" stroke="#dbe1ee"/>
+    <rect x="652" y="72" width="268" height="40" rx="20" fill="#8a5d0f"/>
+    <text x="786" y="98" text-anchor="middle" class="heading" fill="#ffffff" font-size="18">DYNAMICALLY TYPED</text>
+    <text x="652" y="138" class="sub">JavaScript &middot; Python &middot; Ruby</text>
+
+    <rect x="652" y="168" width="476" height="150" rx="10" fill="#10192c"/>
+    <text x="676" y="212" class="code" fill="#a9b6d0">let count = 10;</text>
+    <text x="676" y="252" class="code" fill="#a9b6d0">count = "a";</text>
+    <text x="676" y="284" class="code" fill="#e0ac4f" font-size="16">// runs fine now — may break later, elsewhere</text>
+
+    <text x="652" y="360" class="caption">The type of <tspan class="code" font-size="17">count</tspan> is only known once the</text>
+    <text x="652" y="386" class="caption">code runs, and it can change. Flexible, but a</text>
+    <text x="652" y="412" class="caption">mismatch surfaces only when that line executes.</text>
+  </g>
+
+  <text x="600" y="570" text-anchor="middle" class="caption" font-size="18" fill="#10192c" font-weight="600">
+    TypeScript adds the left-hand behavior on top of JavaScript.
+  </text>
+</svg>

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="jsts-title jsts-desc">
+  <title id="jsts-title">How TypeScript relates to JavaScript</title>
+  <desc id="jsts-desc">Venn diagram showing JavaScript as a subset of TypeScript, alongside a list of what TypeScript adds: static typing, compile-time error checking, editor tooling, and early access to upcoming JavaScript features.</desc>
+
+  <defs>
+    <style>
+      .pill-text { font-family: 'Public Sans', Inter, 'Segoe UI', Helvetica, Arial, sans-serif; font-weight: 800; }
+      .item { font-family: 'Public Sans', Inter, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 24px; font-weight: 700; fill: #10192c; }
+      .heading { font-family: 'Public Sans', Inter, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 800; fill: #ffffff; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="560" rx="16" fill="#f5f7fb"/>
+  <rect x="0.5" y="0.5" width="1199" height="559" rx="16" fill="none" stroke="#dbe1ee"/>
+
+  <!-- Venn diagram: TS outer, JS inner -->
+  <circle cx="330" cy="290" r="220" fill="#3178c6"/>
+  <circle cx="240" cy="290" r="130" fill="#a9c6ec"/>
+
+  <text x="240" y="300" text-anchor="middle" class="pill-text" font-size="34" fill="#10192c">JS</text>
+  <text x="470" y="300" text-anchor="middle" class="pill-text" font-size="34" fill="#ffffff">TS</text>
+
+  <!-- Benefits list -->
+  <g>
+    <rect x="660" y="70" width="200" height="42" rx="21" fill="#1f4f8a"/>
+    <text x="760" y="97" text-anchor="middle" class="heading">WHAT TS ADDS</text>
+
+    <circle cx="676" cy="168" r="8" fill="#1f4f8a"/>
+    <text x="700" y="176" class="item">Static typing</text>
+
+    <circle cx="676" cy="228" r="8" fill="#1f4f8a"/>
+    <text x="700" y="236" class="item">Compile-time error checking</text>
+
+    <circle cx="676" cy="288" r="8" fill="#1f4f8a"/>
+    <text x="700" y="296" class="item">Editor tooling — completion &amp; refactoring</text>
+
+    <circle cx="676" cy="348" r="8" fill="#1f4f8a"/>
+    <text x="700" y="356" class="item">Early access to upcoming JS features</text>
+  </g>
+
+  <text x="660" y="460" class="item" font-size="18" fill="#51607a" font-weight="500">
+    Every valid JavaScript file is already a valid
+  </text>
+  <text x="660" y="486" class="item" font-size="18" fill="#51607a" font-weight="500">
+    TypeScript file — TS is a superset, not a rewrite.
+  </text>
+</svg>
