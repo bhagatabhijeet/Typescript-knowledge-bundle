@@ -11,5 +11,7 @@ Start here if you are new to TypeScript.
 
 - [What Is TypeScript?](/introduction/what-is-typescript.md) — what
   TypeScript is, how it relates to JavaScript, and why it exists.
-- [Your First TypeScript](/introduction/your-first-typescript.md) — set up
-  a minimal project and run your first `.ts` file.
+- [Setting Up Your Development Environment](/introduction/setting-up-dev-environment.md) —
+  install Node.js and the TypeScript compiler, and pick an editor.
+- [Your First TypeScript](/introduction/your-first-typescript.md) — write
+  and compile your first `.ts` file.

@@ -73,7 +73,8 @@ Begin with [**Introduction**](introduction/index.md):
 | Topic | What you'll learn |
 | --- | --- |
 | [What Is TypeScript?](introduction/what-is-typescript.md) | What TypeScript is, how it relates to JavaScript, and why it exists. |
-| [Your First TypeScript](introduction/your-first-typescript.md) | Set up a minimal project and run your first `.ts` file. |
+| [Setting Up Your Development Environment](introduction/setting-up-dev-environment.md) | Install Node.js and the TypeScript compiler, and pick an editor. |
+| [Your First TypeScript](introduction/your-first-typescript.md) | Write and compile your first `.ts` file. |
 
 More topics are added regularly — see [`index.md`](index.md) for the full,
 current table of contents and [`log.md`](log.md) for the update history.

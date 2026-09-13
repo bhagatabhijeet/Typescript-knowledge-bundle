@@ -1,11 +1,10 @@
 ---
 type: Guide
 title: Your First TypeScript
-description: Set up a minimal project and run your first .ts file.
+description: Write and compile your first TypeScript program.
 tags:
   - typescript
   - fundamentals
-  - setup
 status: draft
 ---
 
@@ -17,4 +16,4 @@ status: draft
 
 ## Next steps
 
-- [What Is TypeScript?](/introduction/what-is-typescript.md)
+- [Setting Up Your Development Environment](/introduction/setting-up-dev-environment.md)
