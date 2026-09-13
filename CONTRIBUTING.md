@@ -6,25 +6,30 @@ and keeps CI green.
 
 ## Bundle structure
 
-The bundle root is [`knowledge/`](knowledge/index.md). Everything under it
-follows the OKF rules:
+This repository *is* the bundle — its root is the OKF bundle root. Everything
+in it follows the OKF rules, with one deliberate exception (below):
 
-- `knowledge/index.md` and `knowledge/log.md` are **reserved filenames**.
+- `index.md` and `log.md` at the repo root are **reserved filenames**.
   `index.md` is the directory listing for that level (progressive
   disclosure); `log.md` is the chronological changelog. Never put concept
   content in a file named either of those.
-- Every other `.md` file under `knowledge/` is a **concept** and must start
-  with YAML frontmatter that includes a non-empty `type` field.
-- Topics are directories (for example `knowledge/introduction/`). Each topic
-  directory has its own `index.md` listing the concepts inside it.
+- Topics are directories at the repo root (for example `introduction/`).
+  Each topic directory has its own reserved `index.md` listing the concepts
+  inside it, and may have its own `log.md` if it needs one.
+- Every other `.md` file under a topic directory is a **concept** and must
+  start with YAML frontmatter that includes a non-empty `type` field.
+- **Exception:** `README.md`, `CONTRIBUTING.md` (this file), and any other
+  `.md` file living directly at the repo root outside a topic directory are
+  ordinary repository documents, not OKF concepts. They intentionally carry
+  no OKF frontmatter and are excluded from `scripts/validate-okf.mjs`.
 
 ## Adding a topic
 
-1. Create a directory under `knowledge/`, e.g. `knowledge/introduction/`.
+1. Create a directory at the repo root, e.g. `introduction/`.
 2. Add an `index.md` inside it with `title` and `description` frontmatter,
    listing the concepts that will live in that topic.
-3. Link the new topic from `knowledge/index.md`.
-4. Add an entry to `knowledge/log.md` describing what was added, dated
+3. Link the new topic from the root [`index.md`](index.md).
+4. Add an entry to [`log.md`](log.md) describing what was added, dated
    `YYYY-MM-DD`.
 
 ## Adding a concept
@@ -32,8 +37,7 @@ follows the OKF rules:
 1. Pick a `type`: `Concept`, `Guide`, `Reference`, or `Exercise` (or another
    value if none fit — OKF permits custom types).
 2. Copy the matching skeleton from `templates/` into the topic directory and
-   rename it to a kebab-case slug, e.g.
-   `knowledge/introduction/what-is-typescript.md`.
+   rename it to a kebab-case slug, e.g. `introduction/what-is-typescript.md`.
 3. Fill in the frontmatter and body sections.
 4. Put any code in `assets/code-snippets/<slug>/` as real `.ts` files and
    embed or link them from the markdown.
@@ -57,8 +61,8 @@ but keep the four above on every concept.
 
 ## Cross-linking
 
-Link between concepts with **absolute, bundle-relative paths** rooted at
-`knowledge/`, e.g. `/introduction/what-is-typescript.md`. This is the OKF
+Link between concepts with **absolute, bundle-relative paths** rooted at the
+repo root, e.g. `/introduction/what-is-typescript.md`. This is the OKF
 recommendation and keeps links stable if files move within a topic.
 
 ## Code snippets

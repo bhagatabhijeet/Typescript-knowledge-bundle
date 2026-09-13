@@ -30,7 +30,7 @@ shouldn't be a barrier to entry.
   price of a `git clone`.
 - **Structured like a real curriculum.** Topics build on each other in a
   deliberate order, not a wiki dump. Start at
-  [Introduction](knowledge/introduction/index.md) and follow the path.
+  [Introduction](introduction/index.md) and follow the path.
 - **Machine-readable.** Authored in Google's
   [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md),
   so the same content that reads well on GitHub can be indexed, searched, and
@@ -47,7 +47,7 @@ frontmatter (not a PDF, not a locked video), this bundle works two ways:
 - **Read it like a book.** Work through the topics on GitHub in order, at
   your own pace, exactly like the printed page it's designed to feel like.
 - **Feed it to your AI.** Point Claude, Cursor, Copilot, or any coding
-  assistant at `knowledge/` — or paste a single topic file into the chat —
+  assistant at this repository — or paste a single topic file into the chat —
   and turn it into a personal tutor. Ask it to quiz you, re-explain a concept
   a different way, or generate practice exercises grounded in exactly what
   you just read. Because the source of truth is sitting in its context
@@ -68,32 +68,36 @@ your editor.
 
 ## Start learning
 
-Begin with [**Introduction**](knowledge/introduction/index.md):
+Begin with [**Introduction**](introduction/index.md):
 
 | Topic | What you'll learn |
 | --- | --- |
-| [What Is TypeScript?](knowledge/introduction/what-is-typescript.md) | What TypeScript is, how it relates to JavaScript, and why it exists. |
-| [Your First TypeScript](knowledge/introduction/your-first-typescript.md) | Set up a minimal project and run your first `.ts` file. |
+| [What Is TypeScript?](introduction/what-is-typescript.md) | What TypeScript is, how it relates to JavaScript, and why it exists. |
+| [Your First TypeScript](introduction/your-first-typescript.md) | Set up a minimal project and run your first `.ts` file. |
 
-More topics are added regularly — see
-[`knowledge/index.md`](knowledge/index.md) for the full, current table of
-contents and [`knowledge/log.md`](knowledge/log.md) for the update history.
+More topics are added regularly — see [`index.md`](index.md) for the full,
+current table of contents and [`log.md`](log.md) for the update history.
 
 ## How the bundle is organized
 
-This repository is an
+This repository is itself an
 [Open Knowledge Format (OKF)](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
-bundle rooted at [`knowledge/`](knowledge/index.md).
+bundle, rooted at [`index.md`](index.md).
 
 | Path | Purpose |
 | --- | --- |
-| `knowledge/index.md` | Reserved bundle-root index — the table of contents |
-| `knowledge/log.md` | Reserved changelog — chronological update history |
-| `knowledge/<topic>/index.md` | Reserved per-topic index, e.g. `knowledge/introduction/index.md` |
-| `knowledge/<topic>/*.md` | Individual concepts, each with OKF frontmatter (`type`, `title`, `description`, `tags`) |
+| `index.md` | Reserved bundle-root index — the table of contents |
+| `log.md` | Reserved changelog — chronological update history |
+| `<topic>/index.md` | Reserved per-topic index, e.g. `introduction/index.md` |
+| `<topic>/*.md` | Individual concepts, each with OKF frontmatter (`type`, `title`, `description`, `tags`) |
 | `assets/images/` | Diagrams and cover art referenced from the knowledge units |
 | `assets/code-snippets/` | Real `.ts` files embedded in the knowledge units, type-checked in CI |
 | `templates/` | Frontmatter skeletons for new concepts, guides, references, and exercises |
+
+`README.md`, `CONTRIBUTING.md`, and `LICENSE` are ordinary repository
+documents, not OKF concepts — this is the one exception to "every `.md` file
+needs frontmatter," and it's called out explicitly in
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Contributing
 
