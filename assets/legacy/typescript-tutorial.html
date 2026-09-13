@@ -1,0 +1,893 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Typed, From Scratch</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap">
+<style>
+  :root{
+    --bg:#f5f7fb; --surface:#ffffff; --surface-2:#eef1f8;
+    --ink:#10192c; --ink-soft:#51607a; --border:#dbe1ee;
+    --accent:#2f6fc0; --accent-strong:#1f4f8a; --accent-ink:#ffffff; --accent-soft:#e3edfb;
+    --amber:#8a5d0f; --amber-soft:#f7ecd8;
+    --green:#196c49; --green-soft:#e1f3ea;
+    --red:#a83a26; --red-soft:#fbe6e1;
+    --font-display:'Fraunces', Georgia, 'Times New Roman', serif;
+    --font-body:'Public Sans', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    --font-mono:'JetBrains Mono', 'Fira Code', Consolas, 'SFMono-Regular', monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0b1220; --surface:#111b2e; --surface-2:#16223a;
+      --ink:#eef2fb; --ink-soft:#a9b6d0; --border:#24344f;
+      --accent:#6ea8f0; --accent-strong:#9dc4f5; --accent-ink:#06121f; --accent-soft:#16314f;
+      --amber:#e0ac4f; --amber-soft:#2c2415;
+      --green:#5fcf9f; --green-soft:#123527;
+      --red:#f0917c; --red-soft:#3a1c17;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0b1220; --surface:#111b2e; --surface-2:#16223a;
+    --ink:#eef2fb; --ink-soft:#a9b6d0; --border:#24344f;
+    --accent:#6ea8f0; --accent-strong:#9dc4f5; --accent-ink:#06121f; --accent-soft:#16314f;
+    --amber:#e0ac4f; --amber-soft:#2c2415;
+    --green:#5fcf9f; --green-soft:#123527;
+    --red:#f0917c; --red-soft:#3a1c17;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--font-body); font-size:17px; line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{ font-family:var(--font-display); text-wrap:balance; margin:0; }
+  p{ margin:0 0 1em; color:var(--ink); }
+  a{ color:var(--accent); }
+  code{ font-family:var(--font-mono); }
+  ::selection{ background:var(--accent-soft); }
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+
+  .badge-ts{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:2.5rem; height:2.5rem; border-radius:9px; flex:none;
+    background:linear-gradient(155deg, var(--accent), var(--accent-strong));
+    color:#fff; font-family:var(--font-mono); font-weight:700; font-size:.95rem;
+  }
+  .badge-file{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:1.5rem; height:1.5rem; border-radius:5px; flex:none;
+    font-family:var(--font-mono); font-weight:700; font-size:.6rem; letter-spacing:.02em;
+  }
+  .badge-file.ts{ background:var(--accent-soft); color:var(--accent-strong); }
+  .badge-file.sh{ background:var(--green-soft); color:var(--green); }
+  .badge-file.md{ background:var(--amber-soft); color:var(--amber); }
+
+  /* ---------- layout shell ---------- */
+  .app{ display:grid; grid-template-columns:272px minmax(0,1fr); align-items:start; }
+  @media (max-width:900px){ .app{ grid-template-columns:1fr; } }
+
+  .menu-toggle{
+    display:none; position:fixed; top:14px; left:14px; z-index:40;
+    font-family:var(--font-body); font-weight:600; font-size:.85rem;
+    background:var(--surface); color:var(--ink); border:1px solid var(--border);
+    border-radius:8px; padding:.55em 1em; cursor:pointer; box-shadow:0 4px 14px rgba(10,20,40,.12);
+  }
+  @media (max-width:900px){ .menu-toggle{ display:inline-block; } }
+
+  .scrim{ display:none; }
+  @media (max-width:900px){
+    .scrim{ display:block; position:fixed; inset:0; background:rgba(6,12,24,.45); z-index:29; opacity:0; pointer-events:none; transition:opacity .2s ease; }
+    .scrim.show{ opacity:1; pointer-events:auto; }
+  }
+
+  .sidebar{
+    position:sticky; top:0; height:100vh; overflow-y:auto;
+    background:var(--surface); border-right:1px solid var(--border);
+    padding:1.5rem 1.1rem 2.5rem; display:flex; flex-direction:column; gap:1.1rem;
+  }
+  @media (max-width:900px){
+    .sidebar{
+      position:fixed; inset:0 30% 0 0; z-index:30; width:auto;
+      transform:translateX(-104%); transition:transform .25s ease; box-shadow:0 0 30px rgba(0,0,0,.25);
+    }
+    .sidebar.open{ transform:translateX(0); }
+  }
+
+  .sidebar-head{ display:flex; gap:.7rem; align-items:center; }
+  .sidebar-title{ margin:0; font-family:var(--font-display); font-weight:600; font-size:1.05rem; line-height:1.2; }
+  .sidebar-sub{ margin:.15em 0 0; font-size:.78rem; color:var(--ink-soft); }
+
+  .progress-track{ height:6px; border-radius:99px; background:var(--surface-2); overflow:hidden; }
+  .progress-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--accent), var(--accent-strong)); transition:width .3s ease; }
+  .progress-label{ margin:-.6rem 0 0; font-size:.72rem; color:var(--ink-soft); font-variant-numeric:tabular-nums; }
+
+  .filelist{ display:flex; flex-direction:column; gap:.15rem; }
+  .filelist-group-label{ font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); margin:.6rem 0 .3rem .3rem; }
+  .file-link{
+    display:flex; align-items:center; gap:.55rem; padding:.4rem .5rem; border-radius:7px;
+    text-decoration:none; color:var(--ink-soft); font-size:.86rem; font-family:var(--font-mono);
+  }
+  .file-link:hover{ background:var(--surface-2); color:var(--ink); }
+  .file-link.active{ background:var(--accent-soft); color:var(--accent-strong); }
+  .file-link .fname{ flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .file-link .fcheck{ font-size:.75rem; color:var(--green); opacity:0; }
+  .file-link.done .fcheck{ opacity:1; }
+
+  /* ---------- main content ---------- */
+  .content{ min-width:0; padding:3.5rem 1.5rem 6rem; }
+  .content-inner{ max-width:700px; margin:0 auto; }
+
+  .hero{ max-width:760px; margin:0 auto 4.5rem; }
+  .hero-eyebrow{ font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; color:var(--accent-strong); font-weight:600; margin:0 0 .9rem; }
+  .hero h1{ font-size:clamp(2.4rem, 5vw, 3.4rem); font-weight:900; letter-spacing:-.01em; }
+  .hero-sub{ font-size:1.12rem; color:var(--ink-soft); max-width:46ch; margin:1.1rem 0 1.8rem; }
+  .hero-actions{ display:flex; align-items:center; gap:1.1rem; flex-wrap:wrap; margin-bottom:2.4rem; }
+
+  .btn{
+    display:inline-flex; align-items:center; gap:.5em; border:none; cursor:pointer;
+    font-family:var(--font-body); font-weight:600; font-size:.95rem; text-decoration:none;
+    padding:.8em 1.4em; border-radius:9px; background:var(--accent); color:var(--accent-ink);
+    box-shadow:0 8px 22px -8px color-mix(in srgb, var(--accent) 65%, transparent);
+  }
+  .hero-hint{ font-size:.85rem; color:var(--ink-soft); }
+
+  /* editor-window motif, reused for hero teaser + code blocks */
+  .code-window{
+    background:#0f1b2d; border:1px solid #1c2c46; border-radius:12px; overflow:hidden;
+    box-shadow:0 18px 40px -20px rgba(6,14,28,.5); margin:1.3rem 0 1.6rem;
+  }
+  .cw-tabs{ display:flex; background:#0b1524; border-bottom:1px solid #1c2c46; }
+  .cw-tab{
+    font-family:var(--font-mono); font-size:.78rem; padding:.65em 1.1em; color:#6d84ad;
+    border-right:1px solid #1c2c46; display:flex; align-items:center; gap:.5em;
+  }
+  .cw-tab.active{ color:#dfe9fb; background:#0f1b2d; box-shadow:inset 0 -2px 0 var(--accent); }
+  .cw-tab .dot{ width:6px; height:6px; border-radius:50%; background:#3a4d70; flex:none; }
+  .cw-tab.active .dot{ background:#f0917c; }
+  .cw-body{ padding:1.1em 1.3em; overflow-x:auto; }
+  .cw-body pre{ margin:0; }
+  .cw-body code{
+    font-family:var(--font-mono); font-size:.86rem; line-height:1.7; color:#d7e2f4; white-space:pre;
+  }
+  .cw-error{
+    display:flex; gap:.7em; align-items:flex-start; background:#2a1512; border-top:1px solid #4a241d;
+    padding:.85em 1.3em; font-family:var(--font-mono); font-size:.76rem; color:#f0a591; line-height:1.6;
+  }
+  .cw-error b{ color:#f6c9bd; }
+  .cw-error::before{ content:"✕"; color:#f0917c; font-weight:700; }
+
+  .tok-k{ color:#7fb3f5; }
+  .tok-s{ color:#f1c98a; }
+  .tok-c{ color:#5f7291; font-style:italic; }
+  .tok-n{ color:#d2a8f7; }
+  .tok-t{ color:#6fd6c4; }
+
+  /* chapters */
+  .chapter{ max-width:700px; margin:0 auto 4.4rem; scroll-margin-top:2rem; }
+  .chapter-eyebrow{ font-family:var(--font-mono); font-size:.76rem; color:var(--ink-soft); margin:0 0 .5rem; }
+  .chapter h2{ font-size:clamp(1.6rem,3vw,2.05rem); font-weight:700; }
+  .chapter-dek{ font-size:1.02rem; color:var(--ink-soft); margin:.7rem 0 1.6rem; max-width:56ch; }
+  .chapter h3{ font-size:1.1rem; font-weight:600; margin:1.9rem 0 .6rem; }
+  .chapter ul, .chapter ol{ padding-left:1.3em; margin:0 0 1.1em; }
+  .chapter li{ margin:0 0 .4em; }
+  .chapter-foot{ margin-top:2.2rem; padding-top:1.2rem; border-top:1px dashed var(--border); }
+
+  .done-toggle{ display:inline-flex; align-items:center; gap:.6em; font-size:.88rem; color:var(--ink-soft); cursor:pointer; }
+  .done-toggle input{ width:1.05em; height:1.05em; accent-color:var(--green); cursor:pointer; }
+
+  /* callouts */
+  .callout{ border-radius:10px; padding:1em 1.2em; margin:1.4rem 0; border:1px solid; }
+  .callout-label{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; font-weight:700; margin:0 0 .45em; }
+  .callout p:last-child{ margin-bottom:0; }
+  .callout.tip{ background:var(--amber-soft); border-color:color-mix(in srgb, var(--amber) 35%, transparent); }
+  .callout.tip .callout-label{ color:var(--amber); }
+  .callout.mistake{ background:var(--red-soft); border-color:color-mix(in srgb, var(--red) 35%, transparent); }
+  .callout.mistake .callout-label{ color:var(--red); }
+
+  /* quiz */
+  .quiz{ background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:1.1em 1.2em 1.2em; margin:1.6rem 0; }
+  .quiz-q{ font-weight:600; margin:0 0 .8em; }
+  .quiz-opts{ display:grid; gap:.5em; }
+  .quiz-opt{
+    text-align:left; font-family:var(--font-mono); font-size:.85rem; padding:.65em .9em;
+    background:var(--surface); border:1px solid var(--border); border-radius:7px; color:var(--ink);
+    cursor:pointer;
+  }
+  .quiz-opt:hover:not(:disabled){ border-color:var(--accent); }
+  .quiz-opt:disabled{ cursor:default; }
+  .quiz-opt.correct{ background:var(--green-soft); border-color:var(--green); color:var(--green); }
+  .quiz-opt.incorrect{ background:var(--red-soft); border-color:var(--red); color:var(--red); }
+  .quiz-explain{ margin:.9em 0 0; font-size:.88rem; color:var(--ink-soft); }
+  .quiz-explain[hidden]{ display:none; }
+
+  /* tables */
+  .table-wrap{ overflow-x:auto; margin:1.3rem 0; border:1px solid var(--border); border-radius:10px; }
+  table{ border-collapse:collapse; width:100%; font-size:.86rem; }
+  th,td{ text-align:left; padding:.7em .9em; border-bottom:1px solid var(--border); vertical-align:top; }
+  thead th{ background:var(--surface-2); font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); }
+  tbody tr:last-child td{ border-bottom:none; }
+  td code, th code{ font-size:.82rem; background:var(--surface-2); padding:.15em .4em; border-radius:5px; }
+
+  /* exercises */
+  details.exercise{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1em 1.2em; margin:1.4rem 0; }
+  details.exercise > summary{ cursor:pointer; font-weight:600; list-style:none; display:flex; align-items:center; justify-content:space-between; gap:1em; }
+  details.exercise > summary::-webkit-details-marker{ display:none; }
+  details.exercise > summary::after{ content:"Show solution"; font-family:var(--font-mono); font-size:.75rem; font-weight:600; color:var(--accent); border:1px solid var(--accent); border-radius:99px; padding:.3em .8em; flex:none; }
+  details.exercise[open] > summary::after{ content:"Hide solution"; }
+  .exercise-body{ margin-top:.9em; }
+
+  .site-foot{ max-width:700px; margin:0 auto; padding-top:1rem; border-top:1px solid var(--border); font-size:.85rem; color:var(--ink-soft); }
+</style>
+</head>
+<body>
+<button class="menu-toggle" id="menuToggle" aria-label="Toggle chapter list" aria-expanded="false">Chapters</button>
+<div class="scrim" id="scrim"></div>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <span class="badge-ts">TS</span>
+      <div>
+        <p class="sidebar-title">Typed, From Scratch</p>
+        <p class="sidebar-sub">A TypeScript starter course</p>
+      </div>
+    </div>
+    <div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <p class="progress-label" id="progressLabel">0 / 12 chapters complete</p>
+    </div>
+    <nav class="filelist" id="filelist">
+      <p class="filelist-group-label">typescript-tutorial/</p>
+      <a class="file-link" data-nav="what-is-ts" href="#what-is-ts"><span class="badge-file ts">TS</span><span class="fname">01-what-is-ts.ts</span><span class="fcheck">✓</span></a>
+      <a class="file-link" data-nav="setup" href="#setup"><span class="badge-file sh">SH</span><span class="fname">02-setup.sh</span><span class="fcheck">✓</span></a>
+      <a class="file-link" data-nav="basic-types" href="#basic-types"><span class="badge-file ts">TS</span><span class="fname">03-basic-types.ts</span><span class="fcheck">✓</span></a>
+      <a class="file-link" data-nav="objects-interfaces" href="#objects-interfaces"><span class="badge-file ts">TS</span><span class="fname">04-interfaces.ts</span><span class="fcheck">✓</span></a>
+      <a class="file-link" data-nav="functions" href="#functions"><span class="badge-file ts">TS</span><span class="fname">05-functions.ts</span><span class="fcheck">✓</span></a>
+      <a class="file-link" data-nav="unions-narrowing" href="#unions-narrowing"><span class="badge-file ts">TS</span><span class="fname">06-unions.ts</span><span class="fcheck">✓</span></a>
+      <a class="file-link" data-nav="enums" href="#enums"><span class="badge-file ts">TS</span><span class="fname">07-enums.ts</span><span class="fcheck">✓</span></a>
+      <a class="file-link" data-nav="classes" href="#classes"><span class="badge-file ts">TS</span><span class="fname">08-classes.ts</span><span class="fcheck">✓</span></a>
+      <a class="file-link" data-nav="generics" href="#generics"><span class="badge-file ts">TS</span><span class="fname">09-generics.ts</span><span class="fcheck">✓</span></a>
+      <a class="file-link" data-nav="cheatsheet" href="#cheatsheet"><span class="badge-file md">MD</span><span class="fname">10-cheatsheet.md</span><span class="fcheck">✓</span></a>
+      <a class="file-link" data-nav="exercises" href="#exercises"><span class="badge-file ts">TS</span><span class="fname">11-exercises.ts</span><span class="fcheck">✓</span></a>
+      <a class="file-link" data-nav="next-steps" href="#next-steps"><span class="badge-file md">MD</span><span class="fname">12-next-steps.md</span><span class="fcheck">✓</span></a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <div class="content-inner">
+
+      <section class="hero" id="welcome">
+        <p class="hero-eyebrow">A hands-on starter course</p>
+        <h1>Typed, From Scratch</h1>
+        <p class="hero-sub">TypeScript is JavaScript that tells you when you're about to break something &mdash; before your code ever runs. This course walks you from your first <code>string</code> to your first generic, one small idea at a time.</p>
+        <div class="hero-actions">
+          <a class="btn" href="#what-is-ts">Start Chapter 1 &rarr;</a>
+          <span class="hero-hint">No install required &mdash; every example fits in the <a href="https://www.typescriptlang.org/play" target="_blank" rel="noopener">TypeScript Playground</a>.</span>
+        </div>
+
+        <div class="code-window">
+          <div class="cw-tabs">
+            <div class="cw-tab"><span class="dot"></span>greet.js</div>
+            <div class="cw-tab active"><span class="dot"></span>greet.ts</div>
+          </div>
+          <div class="cw-body"><pre><code id="heroCode">function greet(user: { name: string }) {
+  return `Hello, ${user.name.toUpperCase()}!`;
+}
+
+greet({ nme: "Ada" });</code></pre></div>
+          <div class="cw-error"><span><b>Error:</b> Argument of type '{ nme: string }' is not assignable to parameter of type '{ name: string }'. Object literal may only specify known properties, but 'nme' does not exist in type '{ name: string }'. Did you mean to write 'name'?</span></div>
+        </div>
+        <p class="hero-hint">The plain JavaScript version of this bug would run fine &mdash; right up until <code>user.name.toUpperCase()</code> crashes on <code>undefined</code>. TypeScript catches the typo while you're still writing the call.</p>
+      </section>
+
+      <!-- ================= CHAPTER 1 ================= -->
+      <article class="chapter" id="what-is-ts" data-chapter>
+        <p class="chapter-eyebrow">Chapter 1 &middot; Concept</p>
+        <h2>What is TypeScript, really?</h2>
+        <p class="chapter-dek">A type-checker that sits in front of JavaScript, then gets out of the way.</p>
+
+        <p>TypeScript is JavaScript plus a layer of <strong>type annotations</strong> &mdash; extra syntax that describes the shape of your data (this is a <code>string</code>, that function returns a <code>boolean</code>, this object always has a <code>name</code>). A tool called the <strong>compiler</strong> (<code>tsc</code>) reads those annotations, checks that your code is internally consistent, and then <em>erases</em> them, leaving plain JavaScript behind.</p>
+
+        <p>That last part matters: types are a design-time tool, not a runtime one. They cost you nothing when the code actually runs &mdash; the browser or Node.js never sees a single <code>: string</code>. They exist purely so mistakes surface on your screen, in your editor, seconds after you make them, instead of in front of a user weeks later.</p>
+
+        <h3>Why bother?</h3>
+        <ul>
+          <li><strong>Typos become errors.</strong> Misspell a property name and TypeScript flags it immediately, the way the hero example above does.</li>
+          <li><strong>Refactors get safer.</strong> Rename a field and every place that used the old name lights up red until you fix it.</li>
+          <li><strong>Your editor gets smarter.</strong> Autocomplete, inline docs, and "go to definition" all work far better once the editor knows what shape your data actually is.</li>
+        </ul>
+
+        <div class="callout tip">
+          <p class="callout-label">Tip</p>
+          <p>You are never fighting JavaScript when you write TypeScript &mdash; every valid JavaScript file is already <em>almost</em> valid TypeScript. You're only ever adding information, never a different language.</p>
+        </div>
+
+        <footer class="chapter-foot"><label class="done-toggle"><input type="checkbox" data-done="what-is-ts"> Mark this chapter complete</label></footer>
+      </article>
+
+      <!-- ================= CHAPTER 2 ================= -->
+      <article class="chapter" id="setup" data-chapter>
+        <p class="chapter-eyebrow">Chapter 2 &middot; Guide</p>
+        <h2>Get it running</h2>
+        <p class="chapter-dek">Two ways to try TypeScript: zero-install, or a real project.</p>
+
+        <h3>Option A &mdash; the Playground</h3>
+        <p>The fastest way to follow along with this course is the official <a href="https://www.typescriptlang.org/play" target="_blank" rel="noopener">TypeScript Playground</a>: paste code in, see the compiled JavaScript and any errors on the right, instantly. Nothing to install.</p>
+
+        <h3>Option B &mdash; a real project</h3>
+        <p>When you're ready to add TypeScript to actual code, install it as a project dependency and let it generate a config file:</p>
+
+        <div class="code-window">
+          <div class="cw-tabs"><div class="cw-tab active"><span class="dot"></span>terminal</div></div>
+          <div class="cw-body"><pre><code>npm install --save-dev typescript
+npx tsc --init
+npx tsc greet.ts</code></pre></div>
+        </div>
+
+        <p>The first line installs the compiler locally. The second generates a <code>tsconfig.json</code> &mdash; the file that controls how strict the checker is (more on that in the reference bundle this course belongs to). The third compiles <code>greet.ts</code> into plain <code>greet.js</code>, ready to run anywhere JavaScript runs.</p>
+
+        <div class="callout tip">
+          <p class="callout-label">Tip</p>
+          <p>Every code example from here on is short enough to paste straight into the Playground &mdash; you don't need a local project to finish this course.</p>
+        </div>
+
+        <footer class="chapter-foot"><label class="done-toggle"><input type="checkbox" data-done="setup"> Mark this chapter complete</label></footer>
+      </article>
+
+      <!-- ================= CHAPTER 3 ================= -->
+      <article class="chapter" id="basic-types" data-chapter>
+        <p class="chapter-eyebrow">Chapter 3 &middot; Concept</p>
+        <h2>The basic types</h2>
+        <p class="chapter-dek">The building blocks you'll reach for in nearly every file.</p>
+
+        <p>You can annotate a variable explicitly with a colon, but TypeScript is usually smart enough to <strong>infer</strong> the type from the value you assign &mdash; you'll only write annotations by hand where there's nothing to infer from yet, like an empty parameter.</p>
+
+        <div class="code-window">
+          <div class="cw-tabs"><div class="cw-tab active"><span class="dot"></span>basics.ts</div></div>
+          <div class="cw-body"><pre><code>let city: string = "Austin";   // explicit annotation
+let age = 29;                  // inferred as number
+let isActive = true;           // inferred as boolean
+
+let tags: string[] = ["css", "html", "ts"];
+let coordinate: [number, number] = [30.27, -97.74]; // a tuple: fixed length &amp; order</code></pre></div>
+        </div>
+
+        <p>An array type (<code>string[]</code>) can grow or shrink and every item must match. A <strong>tuple</strong> (<code>[number, number]</code>) is a fixed-length array where each position has its own type &mdash; useful for things like coordinates or a <code>[key, value]</code> pair.</p>
+
+        <div class="callout mistake">
+          <p class="callout-label">Common mistake</p>
+          <p>Once TypeScript infers a type for <code>let</code>, it holds you to it:</p>
+          <div class="code-window" style="margin:.8em 0 0;">
+            <div class="cw-tabs"><div class="cw-tab active"><span class="dot"></span>basics.ts</div></div>
+            <div class="cw-body"><pre><code>let city = "Austin";
+city = 42;</code></pre></div>
+            <div class="cw-error"><span><b>Error:</b> Type 'number' is not assignable to type 'string'.</span></div>
+          </div>
+        </div>
+
+        <h3>The four special-purpose types</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Type</th><th>Means</th></tr></thead>
+            <tbody>
+              <tr><td><code>any</code></td><td>Turns checking off for that value. Escape hatch &mdash; avoid it when you can.</td></tr>
+              <tr><td><code>unknown</code></td><td>The safe <code>any</code>: you must narrow it (check its type) before you're allowed to use it.</td></tr>
+              <tr><td><code>void</code></td><td>A function that doesn't return a meaningful value.</td></tr>
+              <tr><td><code>never</code></td><td>A function that never finishes normally &mdash; it always throws or loops forever.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="quiz" data-quiz>
+          <p class="quiz-q">Given <code>let count = 10;</code> with no annotation written, what type does TypeScript infer for <code>count</code>?</p>
+          <div class="quiz-opts">
+            <button class="quiz-opt" data-correct="true">number</button>
+            <button class="quiz-opt">any</button>
+            <button class="quiz-opt">unknown</button>
+          </div>
+          <p class="quiz-explain" hidden>Right &mdash; TypeScript looks at the literal <code>10</code> and infers <code>number</code>, exactly as if you'd written <code>let count: number = 10;</code> yourself.</p>
+        </div>
+
+        <footer class="chapter-foot"><label class="done-toggle"><input type="checkbox" data-done="basic-types"> Mark this chapter complete</label></footer>
+      </article>
+
+      <!-- ================= CHAPTER 4 ================= -->
+      <article class="chapter" id="objects-interfaces" data-chapter>
+        <p class="chapter-eyebrow">Chapter 4 &middot; Concept</p>
+        <h2>Shaping objects: interfaces &amp; type aliases</h2>
+        <p class="chapter-dek">Give a recurring shape a name, once.</p>
+
+        <p>Most real data is an object, not a single value. You describe its shape with an <code>interface</code> or a <code>type</code> alias &mdash; for plain object shapes the two are nearly interchangeable:</p>
+
+        <div class="code-window">
+          <div class="cw-tabs"><div class="cw-tab active"><span class="dot"></span>user.ts</div></div>
+          <div class="cw-body"><pre><code>interface User {
+  id: number;
+  name: string;
+  email?: string;        // the ? means optional
+  readonly createdAt: Date; // set once, never reassigned
+}
+
+const ada: User = {
+  id: 1,
+  name: "Ada Lovelace",
+  createdAt: new Date(),
+};</code></pre></div>
+        </div>
+
+        <p><code>email</code> is optional, so leaving it out above is fine &mdash; but <code>id</code>, <code>name</code>, and <code>createdAt</code> are required. Mark a property <code>readonly</code> when it should be set once and never reassigned.</p>
+
+        <h3>"If it walks like a User&hellip;"</h3>
+        <p>TypeScript uses <strong>structural typing</strong>: a value satisfies <code>User</code> if it has the right shape, whether or not it was ever declared as one. There's no <code>implements User</code> needed on a plain object &mdash; only classes use <code>implements</code> explicitly, which you'll see in Chapter 8.</p>
+
+        <div class="callout tip">
+          <p class="callout-label">Tip</p>
+          <p>Reach for <code>interface</code> when you're describing an object or a class shape, and <code>type</code> when you need a union (<code>"pending" | "done"</code>) or anything that isn't a plain object &mdash; a habit that will serve you well as your types grow up.</p>
+        </div>
+
+        <footer class="chapter-foot"><label class="done-toggle"><input type="checkbox" data-done="objects-interfaces"> Mark this chapter complete</label></footer>
+      </article>
+
+      <!-- ================= CHAPTER 5 ================= -->
+      <article class="chapter" id="functions" data-chapter>
+        <p class="chapter-eyebrow">Chapter 5 &middot; Concept</p>
+        <h2>Functions</h2>
+        <p class="chapter-dek">Typing the inputs is where TypeScript earns its keep.</p>
+
+        <div class="code-window">
+          <div class="cw-tabs"><div class="cw-tab active"><span class="dot"></span>pricing.ts</div></div>
+          <div class="cw-body"><pre><code>function formatPrice(cents: number, currency: string = "USD"): string {
+  return `${(cents / 100).toFixed(2)} ${currency}`;
+}
+
+const shout = (message: string): void =&gt; {
+  console.log(message.toUpperCase());
+};
+
+function findUser(id: number, cache?: Map&lt;number, User&gt;) {
+  // cache is optional: `Map&lt;number, User&gt; | undefined`
+}</code></pre></div>
+        </div>
+
+        <p>Parameters are typed the same way variables are. <code>currency: string = "USD"</code> is a <strong>default</strong> parameter &mdash; skip it and TypeScript fills it in. <code>cache?</code> is an <strong>optional</strong> parameter &mdash; its type quietly becomes <code>Map&lt;number, User&gt; | undefined</code>. The <code>: string</code> and <code>: void</code> after the parameter list annotate the <strong>return type</strong>, though TypeScript can usually infer that too.</p>
+
+        <div class="callout mistake">
+          <p class="callout-label">Common mistake</p>
+          <p>Required parameters can't come after optional or default ones &mdash; TypeScript won't know which argument you meant to skip:</p>
+          <div class="code-window" style="margin:.8em 0 0;">
+            <div class="cw-tabs"><div class="cw-tab active"><span class="dot"></span>pricing.ts</div></div>
+            <div class="cw-body"><pre><code>function formatPrice(currency: string = "USD", cents: number) {}</code></pre></div>
+            <div class="cw-error"><span><b>Error:</b> A required parameter cannot follow an optional parameter.</span></div>
+          </div>
+        </div>
+
+        <footer class="chapter-foot"><label class="done-toggle"><input type="checkbox" data-done="functions"> Mark this chapter complete</label></footer>
+      </article>
+
+      <!-- ================= CHAPTER 6 ================= -->
+      <article class="chapter" id="unions-narrowing" data-chapter>
+        <p class="chapter-eyebrow">Chapter 6 &middot; Concept</p>
+        <h2>Union types, literals &amp; narrowing</h2>
+        <p class="chapter-dek">"One of these" is a type too.</p>
+
+        <p>A <strong>union</strong> (<code>|</code>) says a value can be one of several types. A <strong>literal type</strong> narrows that further to one exact value:</p>
+
+        <div class="code-window">
+          <div class="cw-tabs"><div class="cw-tab active"><span class="dot"></span>status.ts</div></div>
+          <div class="cw-body"><pre><code>let id: string | number;
+id = "sku-42";   // fine
+id = 42;         // also fine
+
+type RequestStatus = "idle" | "loading" | "success" | "error";
+
+function describe(status: RequestStatus) {
+  if (status === "loading") return "Hang tight&hellip;";
+  return `Status: ${status}`;
+}</code></pre></div>
+        </div>
+
+        <p><code>RequestStatus</code> can now <em>only</em> be one of those four strings &mdash; pass anything else and TypeScript rejects it before the code ever runs.</p>
+
+        <h3>Narrowing</h3>
+        <p>Once a value's type is a union, TypeScript won't let you use members that don't exist on every branch until you <strong>narrow</strong> it &mdash; prove, with an ordinary JavaScript check, which branch you're in:</p>
+
+        <div class="code-window">
+          <div class="cw-tabs"><div class="cw-tab active"><span class="dot"></span>narrow.ts</div></div>
+          <div class="cw-body"><pre><code>function printId(id: string | number) {
+  if (typeof id === "string") {
+    console.log(id.toUpperCase()); // TypeScript knows id is a string here
+  } else {
+    console.log(id.toFixed(2));    // and a number here
+  }
+}</code></pre></div>
+        </div>
+
+        <div class="quiz" data-quiz>
+          <p class="quiz-q">Inside the <code>if (typeof id === "string")</code> branch above, what does TypeScript treat <code>id</code> as?</p>
+          <div class="quiz-opts">
+            <button class="quiz-opt">string | number, unchanged</button>
+            <button class="quiz-opt" data-correct="true">string</button>
+            <button class="quiz-opt">any</button>
+          </div>
+          <p class="quiz-explain" hidden>Right &mdash; the <code>typeof</code> check <em>narrows</em> the union down to just <code>string</code> for the rest of that branch, so <code>.toUpperCase()</code> is safe to call.</p>
+        </div>
+
+        <footer class="chapter-foot"><label class="done-toggle"><input type="checkbox" data-done="unions-narrowing"> Mark this chapter complete</label></footer>
+      </article>
+
+      <!-- ================= CHAPTER 7 ================= -->
+      <article class="chapter" id="enums" data-chapter>
+        <p class="chapter-eyebrow">Chapter 7 &middot; Concept</p>
+        <h2>Enums</h2>
+        <p class="chapter-dek">A named set of related constants.</p>
+
+        <div class="code-window">
+          <div class="cw-tabs"><div class="cw-tab active"><span class="dot"></span>direction.ts</div></div>
+          <div class="cw-body"><pre><code>enum Direction {
+  Up,
+  Down,
+  Left,
+  Right,
+}
+
+function move(dir: Direction) { /* ... */ }
+move(Direction.Up);
+
+enum Plan {
+  Free = "FREE",
+  Pro = "PRO",
+}</code></pre></div>
+        </div>
+
+        <p>A plain <code>enum</code> assigns increasing numbers (<code>0, 1, 2&hellip;</code>) unless you give string values yourself, as with <code>Plan</code>. Enums are handy for a small, fixed set of related options that show up throughout your code.</p>
+
+        <div class="callout tip">
+          <p class="callout-label">Tip</p>
+          <p>Many teams reach for a string-literal union (<code>type Plan = "FREE" | "PRO"</code>, from the last chapter) instead of an enum &mdash; it needs no import and behaves like an ordinary string. Both are fine choices; know that you'll see enums in the wild.</p>
+        </div>
+
+        <footer class="chapter-foot"><label class="done-toggle"><input type="checkbox" data-done="enums"> Mark this chapter complete</label></footer>
+      </article>
+
+      <!-- ================= CHAPTER 8 ================= -->
+      <article class="chapter" id="classes" data-chapter>
+        <p class="chapter-eyebrow">Chapter 8 &middot; Concept</p>
+        <h2>Classes</h2>
+        <p class="chapter-dek">Everything you already know from JavaScript classes, now typed.</p>
+
+        <div class="code-window">
+          <div class="cw-tabs"><div class="cw-tab active"><span class="dot"></span>account.ts</div></div>
+          <div class="cw-body"><pre><code>interface Payable {
+  charge(cents: number): void;
+}
+
+class Account implements Payable {
+  readonly id: number;
+  private balanceCents = 0;
+
+  constructor(id: number, public owner: string) {
+    this.id = id;
+  }
+
+  charge(cents: number): void {
+    this.balanceCents -= cents;
+  }
+}
+
+const acct = new Account(1, "Ada Lovelace");
+acct.charge(500);
+acct.balanceCents; // Error: 'balanceCents' is private</code></pre></div>
+        </div>
+
+        <p><code>implements Payable</code> makes TypeScript check that <code>Account</code> really provides everything the interface promises. <code>public owner: string</code> in the constructor is a shortcut that both declares and assigns the property in one line. <code>private</code> hides <code>balanceCents</code> from anything outside the class &mdash; <code>readonly</code> means <code>id</code> can be set in the constructor but never again.</p>
+
+        <footer class="chapter-foot"><label class="done-toggle"><input type="checkbox" data-done="classes"> Mark this chapter complete</label></footer>
+      </article>
+
+      <!-- ================= CHAPTER 9 ================= -->
+      <article class="chapter" id="generics" data-chapter>
+        <p class="chapter-eyebrow">Chapter 9 &middot; Concept</p>
+        <h2>Generics, gently</h2>
+        <p class="chapter-dek">A type that fills itself in at the call site.</p>
+
+        <p>Sometimes a function's input and output types are linked, but you don't know the exact type ahead of time &mdash; it could be called with a <code>string</code> today and a <code>User</code> tomorrow. A <strong>generic</strong> (<code>&lt;T&gt;</code>) is a placeholder type that TypeScript fills in from how you actually call the function:</p>
+
+        <div class="code-window">
+          <div class="cw-tabs"><div class="cw-tab active"><span class="dot"></span>generics.ts</div></div>
+          <div class="cw-body"><pre><code>function firstElement&lt;T&gt;(items: T[]): T {
+  return items[0];
+}
+
+const firstName = firstElement(["Ada", "Grace"]); // T is string, result: string
+const firstId = firstElement([1, 2, 3]);          // T is number, result: number</code></pre></div>
+        </div>
+
+        <p>Think of <code>T</code> as a variable, but for types instead of values: <code>&lt;T&gt;</code> declares it, <code>T[]</code> and <code>T</code> use it. Call <code>firstElement</code> with a <code>string[]</code> and every <code>T</code> in the signature becomes <code>string</code> for that call &mdash; including the return type, with no casting required.</p>
+
+        <div class="callout tip">
+          <p class="callout-label">Tip</p>
+          <p>You've already been using a generic type: <code>Array&lt;string&gt;</code> (the long form of <code>string[]</code>) and <code>Map&lt;number, User&gt;</code> from Chapter 5 are both generics supplied by TypeScript itself.</p>
+        </div>
+
+        <footer class="chapter-foot"><label class="done-toggle"><input type="checkbox" data-done="generics"> Mark this chapter complete</label></footer>
+      </article>
+
+      <!-- ================= CHAPTER 10 ================= -->
+      <article class="chapter" id="cheatsheet" data-chapter>
+        <p class="chapter-eyebrow">Chapter 10 &middot; Reference</p>
+        <h2>Utility types cheat sheet</h2>
+        <p class="chapter-dek">Built-in helpers that transform a type you already have.</p>
+
+        <p>TypeScript ships a handful of generic helpers that reshape an existing type instead of making you redeclare it by hand. Given this base interface:</p>
+
+        <div class="code-window">
+          <div class="cw-tabs"><div class="cw-tab active"><span class="dot"></span>base.ts</div></div>
+          <div class="cw-body"><pre><code>interface User {
+  id: number;
+  name: string;
+  email?: string;
+}</code></pre></div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Utility</th><th>Produces</th></tr></thead>
+            <tbody>
+              <tr><td><code>Partial&lt;User&gt;</code></td><td>Every field optional &mdash; handy for an "update" payload.</td></tr>
+              <tr><td><code>Required&lt;User&gt;</code></td><td>Every field required, even <code>email</code>.</td></tr>
+              <tr><td><code>Readonly&lt;User&gt;</code></td><td>Every field <code>readonly</code>.</td></tr>
+              <tr><td><code>Pick&lt;User, "id" | "name"&gt;</code></td><td>Only <code>id</code> and <code>name</code>.</td></tr>
+              <tr><td><code>Omit&lt;User, "email"&gt;</code></td><td>Everything except <code>email</code>.</td></tr>
+              <tr><td><code>Record&lt;string, User&gt;</code></td><td>An object type indexed by string keys, e.g. a lookup table by id.</td></tr>
+              <tr><td><code>ReturnType&lt;typeof formatPrice&gt;</code></td><td>The return type of a function &mdash; here, <code>string</code>.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>You won't need most of these on day one &mdash; bookmark this table and reach for it once you find yourself retyping a shape you already declared elsewhere.</p>
+
+        <footer class="chapter-foot"><label class="done-toggle"><input type="checkbox" data-done="cheatsheet"> Mark this chapter complete</label></footer>
+      </article>
+
+      <!-- ================= CHAPTER 11 ================= -->
+      <article class="chapter" id="exercises" data-chapter>
+        <p class="chapter-eyebrow">Chapter 11 &middot; Exercises</p>
+        <h2>Practice</h2>
+        <p class="chapter-dek">Four small problems. Try each one before opening the solution.</p>
+
+        <details class="exercise">
+          <summary>1. Add types to this plain JavaScript function</summary>
+          <div class="exercise-body">
+            <p>It should take two numbers and return their sum as a string, e.g. <code>addAsString(2, 3) === "5"</code>.</p>
+            <div class="code-window">
+              <div class="cw-tabs"><div class="cw-tab active"><span class="dot"></span>exercise-1.ts</div></div>
+              <div class="cw-body"><pre><code>function addAsString(a: number, b: number): string {
+  return String(a + b);
+}</code></pre></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="exercise">
+          <summary>2. Fix the type error</summary>
+          <div class="exercise-body">
+            <p>This won't compile &mdash; find the mismatch and fix it.</p>
+            <div class="code-window">
+              <div class="cw-tabs"><div class="cw-tab active"><span class="dot"></span>exercise-2.ts</div></div>
+              <div class="cw-body"><pre><code>function double(n: number) {
+  return n * 2;
+}
+double("4");</code></pre></div>
+              <div class="cw-error"><span><b>Error:</b> Argument of type 'string' is not assignable to parameter of type 'number'.</span></div>
+            </div>
+            <p>Solution &mdash; pass a number, not a numeric string:</p>
+            <div class="code-window">
+              <div class="cw-tabs"><div class="cw-tab active"><span class="dot"></span>exercise-2.ts</div></div>
+              <div class="cw-body"><pre><code>double(4);</code></pre></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="exercise">
+          <summary>3. Write an interface for this data</summary>
+          <div class="exercise-body">
+            <p>Model the shape of a blog post: a numeric <code>id</code>, string <code>title</code>, string <code>body</code>, and an optional <code>publishedAt</code> date.</p>
+            <div class="code-window">
+              <div class="cw-tabs"><div class="cw-tab active"><span class="dot"></span>exercise-3.ts</div></div>
+              <div class="cw-body"><pre><code>interface Post {
+  id: number;
+  title: string;
+  body: string;
+  publishedAt?: Date;
+}</code></pre></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="exercise">
+          <summary>4. Write a generic <code>lastElement</code> function</summary>
+          <div class="exercise-body">
+            <p>Same idea as <code>firstElement</code> from Chapter 9, but returning the last item of any array.</p>
+            <div class="code-window">
+              <div class="cw-tabs"><div class="cw-tab active"><span class="dot"></span>exercise-4.ts</div></div>
+              <div class="cw-body"><pre><code>function lastElement&lt;T&gt;(items: T[]): T {
+  return items[items.length - 1];
+}</code></pre></div>
+            </div>
+          </div>
+        </details>
+
+        <footer class="chapter-foot"><label class="done-toggle"><input type="checkbox" data-done="exercises"> Mark this chapter complete</label></footer>
+      </article>
+
+      <!-- ================= CHAPTER 12 ================= -->
+      <article class="chapter" id="next-steps" data-chapter>
+        <p class="chapter-eyebrow">Chapter 12</p>
+        <h2>Where to go next</h2>
+        <p class="chapter-dek">You've covered the foundations &mdash; here's the rest of the map.</p>
+
+        <p>This course covers the <strong>Beginner</strong> tier of the wider <em>TypeScript Knowledge Bundle</em> this file belongs to: the type system's foundations. Two tiers remain, matching the bundle's <code>knowledge/00-index.md</code> learning path:</p>
+
+        <ul>
+          <li><strong>Intermediate</strong> &mdash; generics in depth, narrowing patterns (discriminated unions, type guards), and modules.</li>
+          <li><strong>Advanced</strong> &mdash; type-level programming (conditional types, <code>infer</code>), declaration files, and compiler internals.</li>
+        </ul>
+
+        <p>The bundle also keeps a growing <code>knowledge/reference/</code> folder for lookup material like the cheat sheet in Chapter 10, and a <code>knowledge/exercises/</code> folder for more practice like Chapter 11. If you're working from the repository, that index is the next page to open.</p>
+
+        <div class="callout tip">
+          <p class="callout-label">Tip</p>
+          <p>The single best next step is to add TypeScript to something real &mdash; even a small script. Nothing teaches narrowing and generics like a type error you actually have to fix.</p>
+        </div>
+
+        <footer class="chapter-foot"><label class="done-toggle"><input type="checkbox" data-done="next-steps"> Mark this chapter complete</label></footer>
+      </article>
+
+      <footer class="site-foot">
+        <p>Typed, From Scratch &mdash; part of the TypeScript Knowledge Bundle, authored in the Open Knowledge Format.</p>
+      </footer>
+
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- syntax highlighter ----------
+  var KEYWORDS = new Set(["type","interface","function","return","const","let","var","if","else","class","extends","implements",
+    "new","this","import","export","from","as","enum","public","private","protected","readonly","static","void","never",
+    "unknown","any","string","number","boolean","true","false","null","undefined","in","of","for","while","switch","case",
+    "break","default","try","catch","finally","throw","async","await","satisfies","keyof","infer","typeof","instanceof","super","get","set"]);
+
+  var TOKEN_RE = /(?<comment>\/\/[^\n]*|\/\*[\s\S]*?\*\/)|(?<tmpl>`(?:\\[\s\S]|[^`\\])*`)|(?<dstr>"(?:\\.|[^"\\])*")|(?<sstr>'(?:\\.|[^'\\])*')|(?<num>\b\d+(?:\.\d+)?\b)|(?<word>[A-Za-z_$][\w$]*)/g;
+
+  function escapeHtml(s){
+    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+
+  function highlight(rawText){
+    var escaped = escapeHtml(rawText);
+    return escaped.replace(TOKEN_RE, function(m){
+      var groups = arguments[arguments.length - 1];
+      if (groups.comment) return '<span class="tok-c">' + m + '</span>';
+      if (groups.tmpl || groups.dstr || groups.sstr) return '<span class="tok-s">' + m + '</span>';
+      if (groups.num) return '<span class="tok-n">' + m + '</span>';
+      if (groups.word) {
+        if (KEYWORDS.has(m)) return '<span class="tok-k">' + m + '</span>';
+        if (/^[A-Z]/.test(m)) return '<span class="tok-t">' + m + '</span>';
+        return m;
+      }
+      return m;
+    });
+  }
+
+  document.querySelectorAll(".cw-body code").forEach(function(block){
+    try {
+      var raw = block.textContent;
+      block.innerHTML = highlight(raw);
+    } catch (e) { /* leave plain text on failure */ }
+  });
+
+  // ---------- sidebar toggle (mobile) ----------
+  var sidebar = document.getElementById("sidebar");
+  var menuToggle = document.getElementById("menuToggle");
+  var scrim = document.getElementById("scrim");
+
+  function setSidebar(open){
+    sidebar.classList.toggle("open", open);
+    scrim.classList.toggle("show", open);
+    menuToggle.setAttribute("aria-expanded", String(open));
+  }
+  menuToggle.addEventListener("click", function(){ setSidebar(!sidebar.classList.contains("open")); });
+  scrim.addEventListener("click", function(){ setSidebar(false); });
+  sidebar.querySelectorAll(".file-link").forEach(function(link){
+    link.addEventListener("click", function(){ setSidebar(false); });
+  });
+
+  // ---------- progress tracking ----------
+  var STORAGE_KEY = "ts-tutorial-progress";
+  var checkboxes = Array.prototype.slice.call(document.querySelectorAll("[data-done]"));
+  var progressFill = document.getElementById("progressFill");
+  var progressLabel = document.getElementById("progressLabel");
+  var total = checkboxes.length;
+
+  function loadDone(){
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? new Set(JSON.parse(raw)) : new Set();
+    } catch (e) { return new Set(); }
+  }
+  function saveDone(set){
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(set))); } catch (e) {}
+  }
+
+  var done = loadDone();
+
+  function refreshProgress(){
+    var count = 0;
+    checkboxes.forEach(function(cb){
+      var id = cb.getAttribute("data-done");
+      var isDone = done.has(id);
+      cb.checked = isDone;
+      if (isDone) count++;
+      var link = document.querySelector('.file-link[data-nav="' + id + '"]');
+      if (link) link.classList.toggle("done", isDone);
+    });
+    progressFill.style.width = (total ? (count / total) * 100 : 0) + "%";
+    progressLabel.textContent = count + " / " + total + " chapters complete";
+  }
+
+  checkboxes.forEach(function(cb){
+    cb.addEventListener("change", function(){
+      var id = cb.getAttribute("data-done");
+      if (cb.checked) done.add(id); else done.delete(id);
+      saveDone(done);
+      refreshProgress();
+    });
+  });
+  refreshProgress();
+
+  // ---------- scrollspy ----------
+  var navLinks = document.querySelectorAll(".file-link");
+  var chapters = document.querySelectorAll("[data-chapter]");
+  if ("IntersectionObserver" in window && chapters.length) {
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (!entry.isIntersecting) return;
+        var id = entry.target.id;
+        navLinks.forEach(function(link){
+          link.classList.toggle("active", link.getAttribute("data-nav") === id);
+        });
+      });
+    }, { rootMargin: "-15% 0px -70% 0px", threshold: 0 });
+    chapters.forEach(function(ch){ observer.observe(ch); });
+  }
+
+  // ---------- quiz cards ----------
+  document.querySelectorAll("[data-quiz]").forEach(function(quiz){
+    var opts = quiz.querySelectorAll(".quiz-opt");
+    var explain = quiz.querySelector(".quiz-explain");
+    var answered = false;
+    opts.forEach(function(btn){
+      btn.addEventListener("click", function(){
+        if (answered) return;
+        answered = true;
+        var isCorrect = btn.getAttribute("data-correct") === "true";
+        opts.forEach(function(b){
+          b.disabled = true;
+          if (b.getAttribute("data-correct") === "true") b.classList.add("correct");
+          else if (b === btn) b.classList.add("incorrect");
+        });
+        if (explain) explain.hidden = false;
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

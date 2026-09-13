@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  markdown-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npx --yes markdownlint-cli@0.43.0 "**/*.md" --ignore node_modules --ignore assets/code-snippets/node_modules
+
+  okf-conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/validate-okf.mjs
+
+  snippets-typecheck:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: assets/code-snippets
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: |
+          SNIPPET_COUNT=$(find . -name '*.ts' -not -path './node_modules/*' | wc -l)
+          if [ "$SNIPPET_COUNT" -eq 0 ]; then
+            echo "No code snippets yet, skipping type-check."
+            exit 0
+          fi
+          npm install --no-audit --no-fund
+          npm run typecheck

@@ -1,0 +1,7 @@
+# Source recordings used to author content — never committed.
+# Delete the recording once its content has been transcribed into markdown.
+*.mp4
+*.mov
+*.mkv
+*.wav
+*.m4a
