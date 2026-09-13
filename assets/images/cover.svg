@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1040" viewBox="0 0 800 1040" role="img" aria-labelledby="cover-title cover-desc">
+  <title id="cover-title">TypeScript Knowledge Bundle</title>
+  <desc id="cover-desc">Book cover for the free TypeScript Knowledge Bundle, styled as a hardcover with a spine, the TS mark, and the tagline "From first types to type-level mastery".</desc>
+
+  <defs>
+    <linearGradient id="face" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f2a4a"/>
+      <stop offset="55%" stop-color="#1f4f8a"/>
+      <stop offset="100%" stop-color="#3178c6"/>
+    </linearGradient>
+    <linearGradient id="spine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#08172c"/>
+      <stop offset="100%" stop-color="#0f2a4a"/>
+    </linearGradient>
+    <linearGradient id="badge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#dbe7f7"/>
+    </linearGradient>
+    <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse">
+      <path d="M36 0H0V36" fill="none" stroke="#ffffff" stroke-opacity="0.05" stroke-width="1"/>
+    </pattern>
+    <filter id="coverShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <rect width="800" height="1040" fill="none"/>
+
+  <!-- Book cover body -->
+  <g filter="url(#coverShadow)">
+    <rect x="40" y="20" width="720" height="1000" rx="14" fill="url(#face)"/>
+    <rect x="40" y="20" width="720" height="1000" rx="14" fill="url(#grid)"/>
+    <!-- Spine shading -->
+    <rect x="40" y="20" width="34" height="1000" fill="url(#spine)"/>
+    <rect x="74" y="20" width="6" height="1000" fill="#000000" fill-opacity="0.18"/>
+    <!-- Cover border -->
+    <rect x="40" y="20" width="720" height="1000" rx="14" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="2"/>
+  </g>
+
+  <!-- Decorative glow -->
+  <circle cx="660" cy="140" r="150" fill="#ffffff" fill-opacity="0.05"/>
+  <circle cx="700" cy="900" r="190" fill="#ffffff" fill-opacity="0.04"/>
+
+  <!-- Decorative type-level code, faint -->
+  <g font-family="'JetBrains Mono','Fira Code',Consolas,monospace" font-size="15" fill="#ffffff" fill-opacity="0.16">
+    <text x="130" y="640">type Learner&lt;T&gt; = { readonly level: T }</text>
+    <text x="130" y="666">function teach&lt;K extends keyof Topics&gt;(k: K)</text>
+    <text x="130" y="692">infer U extends unknown ? U : never</text>
+    <text x="130" y="718">// strict: true</text>
+  </g>
+
+  <!-- FREE ribbon -->
+  <g>
+    <rect x="560" y="70" width="150" height="42" rx="21" fill="#ffffff" fill-opacity="0.95"/>
+    <text x="635" y="97" text-anchor="middle" font-family="'Public Sans',Inter,'Segoe UI',Helvetica,Arial,sans-serif" font-size="16" font-weight="800" letter-spacing="1" fill="#1f4f8a">100% FREE</text>
+  </g>
+
+  <!-- TS mark -->
+  <g>
+    <rect x="130" y="150" width="140" height="140" rx="24" fill="url(#badge)"/>
+    <text x="200" y="252" text-anchor="middle" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif" font-size="78" font-weight="800" fill="#1f4f8a">TS</text>
+  </g>
+
+  <!-- Title block -->
+  <g font-family="'Fraunces',Georgia,'Times New Roman',serif" fill="#ffffff">
+    <text x="128" y="440" font-size="74" font-weight="700" letter-spacing="-1">TypeScript</text>
+    <text x="128" y="510" font-size="46" font-weight="300" letter-spacing="-0.5">Knowledge Bundle</text>
+  </g>
+
+  <g font-family="'Public Sans',Inter,'Segoe UI',Helvetica,Arial,sans-serif" fill="#ffffff" fill-opacity="0.88">
+    <text x="130" y="560" font-size="21">From first types to type-level mastery.</text>
+  </g>
+
+  <!-- Divider -->
+  <rect x="130" y="820" width="80" height="4" rx="2" fill="#ffffff" fill-opacity="0.55"/>
+
+  <!-- Footer line -->
+  <g font-family="'Public Sans',Inter,'Segoe UI',Helvetica,Arial,sans-serif" fill="#ffffff">
+    <text x="130" y="875" font-size="19" font-weight="600" fill-opacity="0.95">Free forever. No signup. No paywall.</text>
+    <text x="130" y="905" font-size="15" fill-opacity="0.7">Open Knowledge Format · MIT-style openness · CC BY 4.0</text>
+  </g>
+
+  <!-- OKF pill -->
+  <g font-family="'Public Sans',Inter,'Segoe UI',Helvetica,Arial,sans-serif">
+    <rect x="130" y="940" width="238" height="38" rx="19" fill="#ffffff" fill-opacity="0.12" stroke="#ffffff" stroke-opacity="0.35"/>
+    <text x="249" y="965" text-anchor="middle" font-size="14" font-weight="700" fill="#ffffff" letter-spacing="0.6">OPEN KNOWLEDGE FORMAT</text>
+  </g>
+</svg>
