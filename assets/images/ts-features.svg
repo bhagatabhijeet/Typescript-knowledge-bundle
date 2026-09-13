@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="660" viewBox="0 0 1200 660" role="img" aria-labelledby="features-title features-desc">
+  <title id="features-title">Four core features of TypeScript</title>
+  <desc id="features-desc">A four-quadrant diagram listing TypeScript's core features: type checking, code completion, refactoring, and new language features.</desc>
+
+  <defs>
+    <style>
+      .label {
+        font-family: 'Public Sans', Inter, 'Segoe UI', Helvetica, Arial, sans-serif;
+        font-size: 44px;
+        font-weight: 800;
+        fill: #ffffff;
+      }
+    </style>
+  </defs>
+
+  <!-- gutters rendered as the base fill; each quadrant sits inset from it -->
+  <rect width="1200" height="660" fill="#f5f7fb"/>
+
+  <!-- Type checking -->
+  <rect x="0" y="0" width="596" height="326" fill="#1f4f8a"/>
+  <text x="48" y="176" class="label">Type checking</text>
+
+  <!-- Code completion -->
+  <rect x="604" y="0" width="596" height="326" fill="#a83a26"/>
+  <text x="652" y="176" class="label">Code completion</text>
+
+  <!-- Refactoring -->
+  <rect x="0" y="334" width="596" height="326" fill="#196c49"/>
+  <text x="48" y="510" class="label">Refactoring</text>
+
+  <!-- New features -->
+  <rect x="604" y="334" width="596" height="326" fill="#8a5d0f"/>
+  <text x="652" y="510" class="label">New features</text>
+</svg>
